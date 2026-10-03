@@ -13,6 +13,7 @@ import {
   FaTshirt,
   FaHatCowboy,
   FaSocks,
+  FaRandom,
 } from 'react-icons/fa';
 import { GiClothes } from 'react-icons/gi';
 
@@ -46,6 +47,8 @@ interface OptionsProps {
   handleTurnAround: () => void;
   handleRotateLeft: () => void;
   handleRotateRight: () => void;
+  handleRandomOutfit: () => void;
+  enableRandomOutfit: boolean;
   handleSave: () => void;
   handleExit: () => void;
   enableExit: boolean;
@@ -238,6 +241,8 @@ const Options: React.FC<OptionsProps> = ({
   handleTurnAround,
   handleRotateLeft,
   handleRotateRight,
+  handleRandomOutfit,
+  enableRandomOutfit,
   handleExit,
   handleSave,
   enableExit
@@ -275,6 +280,11 @@ const Options: React.FC<OptionsProps> = ({
       <ToggleOption active={rotate.right} onClick={handleRotateRight}>
         <FaUndo size={20} />
       </ToggleOption>
+      {enableRandomOutfit && (
+        <Option onClick={handleRandomOutfit}>
+          <FaRandom size={20} />
+        </Option>
+      )}
       <Option onClick={handleSave}>
         <FaSave size={20} />
       </Option>
