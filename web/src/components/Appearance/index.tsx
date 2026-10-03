@@ -186,6 +186,14 @@ const Appearance = () => {
     [setExitModal],
   );
 
+  const handleRandomOutfit = useCallback(async () => {
+    const result = await Nui.post('appearance_random_outfit');
+    if (!result) return;
+
+    setAppearanceSettings(result.appearanceSettings);
+    setData(result.appearanceData);
+  }, [setData, setAppearanceSettings]);
+
   const handleModelChange = useCallback(
     async (value: string) => {
       const { appearanceSettings: _appearanceSettings, appearanceData } = await Nui.post(
@@ -653,6 +661,8 @@ const Appearance = () => {
                   handleTurnAround={handleTurnAround}
                   handleRotateLeft={handleRotateLeft}
                   handleRotateRight={handleRotateRight}
+                  handleRandomOutfit={handleRandomOutfit}
+                  enableRandomOutfit={config.components || config.props}
                   handleSave={handleSaveModal}
                   handleExit={handleExitModal}
                   enableExit={config.enableExit}
