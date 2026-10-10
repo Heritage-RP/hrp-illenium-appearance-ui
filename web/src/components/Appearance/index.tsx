@@ -18,6 +18,7 @@ import {
   Tattoo,
   TattoosSettings,
 } from './interfaces';
+import { previewOf, withFade, withoutTattoo, withoutTattoos, withTattoo } from './tattooList';
 
 import {
   APPEARANCE_INITIAL_STATE,
@@ -258,11 +259,8 @@ const Appearance = () => {
 
   const handleChangeFade = useCallback(async (value: number) => {
     if (!data || !appearanceSettings) return;
-      const { tattoos } = data;
-      const updatedTattoos = { ...tattoos };
       const tattoo = appearanceSettings.tattoos.items['ZONE_HAIR'][value]
-      if (!updatedTattoos[tattoo.zone]) updatedTattoos[tattoo.zone] = [];
-      updatedTattoos[tattoo.zone] = [tattoo];
+      const updatedTattoos = withFade(data.tattoos, tattoo);
       await Nui.post('appearance_apply_tattoo', updatedTattoos);
       setData({ ...data, tattoos: updatedTattoos });
   }, [appearanceSettings, data, setData])
@@ -451,12 +449,9 @@ const Appearance = () => {
   const handleApplyTattoo = useCallback(
     async (tattoo: Tattoo, opacity: number) => {
       if (!data) return;
-      tattoo.opacity = opacity;
-      const { tattoos } = data;
-      const updatedTattoos = JSON.parse(JSON.stringify({ ...tattoos}));
-      if (!updatedTattoos[tattoo.zone]) updatedTattoos[tattoo.zone] = [];
-      updatedTattoos[tattoo.zone].push(tattoo);
-      const applied = await Nui.post('appearance_apply_tattoo', {tattoo, updatedTattoos});
+      // A copy at this opacity: the shop's tattoo object stays out of the list (PRODUCTION-SERVER#12)
+      const updatedTattoos = withTattoo(data.tattoos, tattoo, opacity);
+      const applied = await Nui.post('appearance_apply_tattoo', { tattoo: previewOf(tattoo, opacity), updatedTattoos });
       if(applied) {
         setData({ ...data, tattoos: updatedTattoos });
       }
@@ -467,9 +462,7 @@ const Appearance = () => {
   const handlePreviewTattoo = useCallback(
     (tattoo: Tattoo, opacity: number) => {
       if (!data) return;
-      tattoo.opacity = opacity;
-      const { tattoos } = data;
-      Nui.post('appearance_preview_tattoo', { data: tattoos, tattoo });
+      Nui.post('appearance_preview_tattoo', { data: data.tattoos, tattoo: previewOf(tattoo, opacity) });
     },
     [data],
   );
@@ -477,10 +470,7 @@ const Appearance = () => {
   const handleDeleteTattoo = useCallback(
     async (tattoo: Tattoo) => {
       if (!data) return;
-      const { tattoos } = data;
-      const updatedTattoos = tattoos;
-      // eslint-disable-next-line prettier/prettier
-      updatedTattoos[tattoo.zone] = updatedTattoos[tattoo.zone].filter(tattooDelete => tattooDelete.name !== tattoo.name);
+      const updatedTattoos = withoutTattoo(data.tattoos, tattoo);
       await Nui.post('appearance_delete_tattoo', updatedTattoos);
       setData({ ...data, tattoos: updatedTattoos });
     },
@@ -490,13 +480,7 @@ const Appearance = () => {
   const handleClearTattoos = useCallback(
     async () => {
       if (!data) return;
-      const { tattoos } = data;
-      const updatedTattoos = { ...tattoos };
-      for (var zone in updatedTattoos) {
-        if (zone !== "ZONE_HAIR") {
-          updatedTattoos[zone] = [];
-        }
-      }
+      const updatedTattoos = withoutTattoos(data.tattoos);
       await Nui.post('appearance_delete_tattoo', updatedTattoos);
       setData({ ...data, tattoos: updatedTattoos });
     },
