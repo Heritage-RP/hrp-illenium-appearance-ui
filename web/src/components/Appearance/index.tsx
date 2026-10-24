@@ -195,6 +195,14 @@ const Appearance = () => {
     setData(result.appearanceData);
   }, [setData, setAppearanceSettings]);
 
+  const handleRandomFace = useCallback(async () => {
+    const result = await Nui.post('appearance_random_face');
+    if (!result) return;
+
+    setAppearanceSettings(result.appearanceSettings);
+    setData(result.appearanceData);
+  }, [setData, setAppearanceSettings]);
+
   const handleModelChange = useCallback(
     async (value: string) => {
       const { appearanceSettings: _appearanceSettings, appearanceData } = await Nui.post(
@@ -647,6 +655,10 @@ const Appearance = () => {
                   handleRotateRight={handleRotateRight}
                   handleRandomOutfit={handleRandomOutfit}
                   enableRandomOutfit={config.components || config.props}
+                  handleRandomFace={handleRandomFace}
+                  enableRandomFace={!!isPedFreemodeModel && !!(config.headBlend || config.faceFeatures || config.headOverlays)}
+                  randomOutfitTitle={locales.buttons?.randomOutfit}
+                  randomFaceTitle={locales.buttons?.randomFace}
                   handleSave={handleSaveModal}
                   handleExit={handleExitModal}
                   enableExit={config.enableExit}
