@@ -11,6 +11,11 @@ export default interface Locales {
     accept: string;
     decline: string;
   };
+  /** Tooltips of the side buttons (Heritage-RP fork: absent from the upstream locales, hence optional) */
+  buttons?: {
+    randomOutfit: string;
+    randomFace: string;
+  };
   ped: {
     title: string;
     model: string;
